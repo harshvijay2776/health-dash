@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0f1117" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Health" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icon-192.png" />
+  <title>Health Check Dashboard</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --card: #181b24;
+      --card-hover: #1f232f;
+      --border: #272b38;
+      --text: #e7e9ee;
+      --muted: #8b90a0;
+      --up: #2ecc71;
+      --down: #ff5252;
+      --unknown: #f0b429;
+      --paused: #6b7280;
+      --accent: #5b8def;
+    }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      min-height: 100vh;
+      padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    }
+    .wrap { max-width: 720px; margin: 0 auto; padding: 20px 16px 40px; }
+
+    header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 4px; }
+    h1 { font-size: 20px; font-weight: 650; margin: 0; letter-spacing: -0.01em; }
+    .updated { font-size: 12px; color: var(--muted); margin: 2px 0 18px; }
+
+    .summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 20px; }
+    .stat { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 12px 8px; text-align: center; }
+    .stat .n { font-size: 22px; font-weight: 700; line-height: 1; }
+    .stat .l { font-size: 11px; color: var(--muted); margin-top: 5px; text-transform: uppercase; letter-spacing: 0.04em; }
+    .stat.up .n { color: var(--up); }
+    .stat.down .n { color: var(--down); }
+    .stat.unknown .n { color: var(--unknown); }
+
+    .list { display: flex; flex-direction: column; gap: 10px; }
+    .card {
+      background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+      padding: 14px 16px; display: flex; align-items: center; gap: 14px;
+      transition: background .15s ease;
+    }
+    .card:active { background: var(--card-hover); }
+    .dot { width: 12px; height: 12px; border-radius: 50%; flex: 0 0 auto; position: relative; }
+    .dot.up { background: var(--up); box-shadow: 0 0 0 4px rgba(46,204,113,.15); }
+    .dot.down { background: var(--down); box-shadow: 0 0 0 4px rgba(255,82,82,.15); }
+    .dot.unknown { background: var(--unknown); box-shadow: 0 0 0 4px rgba(240,180,41,.15); }
+    .dot.paused { background: var(--paused); }
+    .dot.up::after {
+      content: ''; position: absolute; inset: 0; border-radius: 50%;
+      background: var(--up); animation: pulse 2s ease-out infinite;
+    }
+    @keyframes pulse { 0% { transform: scale(1); opacity: .7; } 100% { transform: scale(2.6); opacity: 0; } }
+
+    .info { flex: 1 1 auto; min-width: 0; }
+    .name { font-size: 15px; font-weight: 550; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .meta { font-size: 12px; color: var(--muted); margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .badge { font-size: 11px; font-weight: 650; padding: 4px 9px; border-radius: 999px; text-transform: uppercase; letter-spacing: .03em; flex: 0 0 auto; }
+    .badge.up { color: var(--up); background: rgba(46,204,113,.12); }
+    .badge.down { color: var(--down); background: rgba(255,82,82,.12); }
+    .badge.unknown { color: var(--unknown); background: rgba(240,180,41,.12); }
+    .badge.paused { color: var(--paused); background: rgba(107,114,128,.15); }
+    .badge.local { color: var(--accent); background: rgba(91,141,239,.12); }
+
+    .btn {
+      background: var(--card); color: var(--text); border: 1px solid var(--border);
+      border-radius: 10px; padding: 9px 12px; font-size: 13px; font-weight: 550;
+      cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
+    }
+    .btn:active { background: var(--card-hover); }
+    .btn.icon { padding: 9px 11px; }
+    .actions { display: flex; gap: 8px; margin-top: 20px; }
+    .actions .btn { flex: 1; justify-content: center; }
+
+    .empty { text-align: center; color: var(--muted); padding: 48px 16px; font-size: 14px; line-height: 1.6; }
+    .spin { animation: spin 1s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .modal-backdrop {
+      position: fixed; inset: 0; background: rgba(0,0,0,.6); display: none;
+      align-items: flex-end; justify-content: center; z-index: 10;
+    }
+    .modal-backdrop.open { display: flex; }
+    .modal {
+      background: var(--card); border: 1px solid var(--border); border-radius: 18px 18px 0 0;
+      width: 100%; max-width: 720px; padding: 22px 18px calc(22px + env(safe-area-inset-bottom));
+    }
+    .modal h2 { font-size: 17px; margin: 0 0 16px; }
+    .modal label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+    .modal input {
+      width: 100%; background: var(--bg); border: 1px solid var(--border); color: var(--text);
+      border-radius: 10px; padding: 11px 12px; font-size: 15px; margin-bottom: 14px;
+    }
+    .modal input:focus { outline: none; border-color: var(--accent); }
+    .modal .row { display: flex; gap: 8px; }
+    .modal .row .btn { flex: 1; justify-content: center; }
+    .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>Health Check</h1>
+      <button class="btn icon" id="refreshBtn" aria-label="Refresh">⟳</button>
+    </header>
+    <div class="updated" id="updated">Loading…</div>
+
+    <div class="summary">
+      <div class="stat"><div class="n" id="s-total">–</div><div class="l">Total</div></div>
+      <div class="stat up"><div class="n" id="s-up">–</div><div class="l">Up</div></div>
+      <div class="stat down"><div class="n" id="s-down">–</div><div class="l">Down</div></div>
+      <div class="stat unknown"><div class="n" id="s-unknown">–</div><div class="l">Other</div></div>
+    </div>
+
+    <div class="list" id="list"></div>
+
+    <div class="actions">
+      <button class="btn" id="addBtn">+ Add monitor</button>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="modal">
+    <div class="modal">
+      <h2>Add a monitor</h2>
+      <label for="m-name">Name</label>
+      <input id="m-name" type="text" placeholder="My API" autocomplete="off" />
+      <label for="m-url">cron-job.org status URL</label>
+      <input id="m-url" type="url" placeholder="https://cron-job.org/en/statusbadges/..." autocomplete="off" inputmode="url" />
+      <div class="row">
+        <button class="btn" id="cancelBtn">Cancel</button>
+        <button class="btn primary" id="saveBtn">Add</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const LS_KEY = 'health-dash-local-monitors';
+    const REFRESH_MS = 60000;
+
+    const el = (id) => document.getElementById(id);
+    const list = el('list');
+
+    function relativeTime(iso) {
+      if (!iso) return 'never';
+      const then = new Date(iso).getTime();
+      if (Number.isNaN(then)) return 'unknown';
+      const secs = Math.round((Date.now() - then) / 1000);
+      if (secs < 60) return secs <= 5 ? 'just now' : `${secs}s ago`;
+      const mins = Math.round(secs / 60);
+      if (mins < 60) return `${mins}m ago`;
+      const hrs = Math.round(mins / 60);
+      if (hrs < 24) return `${hrs}h ago`;
+      return `${Math.round(hrs / 24)}d ago`;
+    }
+
+    function loadLocal() {
+      try { return JSON.parse(localStorage.getItem(LS_KEY)) || []; }
+      catch { return []; }
+    }
+    function saveLocal(arr) { localStorage.setItem(LS_KEY, JSON.stringify(arr)); }
+
+    function statusBadge(status) {
+      const labels = { up: 'Up', down: 'Down', unknown: 'Unknown', paused: 'Paused' };
+      return `<span class="badge ${status}">${labels[status] || status}</span>`;
+    }
+
+    function renderCard(m, isLocal) {
+      const card = document.createElement('div');
+      card.className = 'card';
+      const status = m.status || 'unknown';
+      const metaBits = [];
+      if (m.lastCheck) metaBits.push(`checked ${relativeTime(m.lastCheck)}`);
+      if (typeof m.responseMs === 'number') metaBits.push(`${m.responseMs} ms`);
+      if (isLocal) metaBits.push('saved on this device');
+      card.innerHTML = `
+        <div class="dot ${status}"></div>
+        <div class="info">
+          <div class="name">${escapeHtml(m.name)}</div>
+          <div class="meta">${escapeHtml(metaBits.join(' · ') || (m.url || ''))}</div>
+        </div>
+        ${isLocal ? '<span class="badge local">Local</span>' : statusBadge(status)}
+      `;
+      if (isLocal) {
+        card.addEventListener('dblclick', () => removeLocal(m.id));
+        card.title = 'Double-tap to remove';
+      }
+      return card;
+    }
+
+    function escapeHtml(s) {
+      return String(s == null ? '' : s).replace(/[&<>"']/g, (c) =>
+        ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    }
+
+    function removeLocal(id) {
+      const next = loadLocal().filter((m) => m.id !== id);
+      saveLocal(next);
+      render(window.__lastData || { monitors: [] });
+    }
+
+    function render(data) {
+      window.__lastData = data;
+      const monitors = data.monitors || [];
+      const locals = loadLocal();
+
+      el('updated').textContent = data.updatedAt
+        ? `Live feed updated ${relativeTime(data.updatedAt)}`
+        : 'Waiting for first data feed…';
+
+      const sum = data.summary || { total: monitors.length, up: 0, down: 0, unknown: 0 };
+      el('s-total').textContent = sum.total ?? monitors.length;
+      el('s-up').textContent = sum.up ?? 0;
+      el('s-down').textContent = sum.down ?? 0;
+      el('s-unknown').textContent = (sum.unknown ?? 0) + (sum.paused ?? 0);
+
+      list.innerHTML = '';
+      if (monitors.length === 0 && locals.length === 0) {
+        list.innerHTML = '<div class="empty">No monitors yet.<br>Run the GitHub Action once to populate the live feed, or add a monitor below.</div>';
+        return;
+      }
+      monitors.forEach((m) => list.appendChild(renderCard(m, false)));
+      locals.forEach((m) => list.appendChild(renderCard(m, true)));
+    }
+
+    async function refresh() {
+      const btn = el('refreshBtn');
+      btn.classList.add('spin');
+      try {
+        const res = await fetch('data.json?t=' + Date.now(), { cache: 'no-store' });
+        const data = await res.json();
+        render(data);
+      } catch (err) {
+        el('updated').textContent = 'Could not load live feed (offline?)';
+        render(window.__lastData || { monitors: [], summary: {} });
+      } finally {
+        setTimeout(() => btn.classList.remove('spin'), 400);
+      }
+    }
+
+    // Modal wiring
+    el('addBtn').addEventListener('click', () => el('modal').classList.add('open'));
+    el('cancelBtn').addEventListener('click', closeModal);
+    el('modal').addEventListener('click', (e) => { if (e.target === el('modal')) closeModal(); });
+    function closeModal() {
+      el('modal').classList.remove('open');
+      el('m-name').value = '';
+      el('m-url').value = '';
+    }
+    el('saveBtn').addEventListener('click', () => {
+      const name = el('m-name').value.trim();
+      const url = el('m-url').value.trim();
+      if (!name) { el('m-name').focus(); return; }
+      const locals = loadLocal();
+      locals.push({ id: 'local-' + Date.now(), name, url, status: 'unknown', lastCheck: null });
+      saveLocal(locals);
+      closeModal();
+      render(window.__lastData || { monitors: [] });
+    });
+
+    el('refreshBtn').addEventListener('click', refresh);
+
+    // Boot
+    refresh();
+    setInterval(refresh, REFRESH_MS);
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) refresh(); });
+
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+    }
+  </script>
+</body>
+</html>
