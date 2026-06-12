@@ -2,7 +2,7 @@
 // App shell is cache-first; the live data feed (data.json) is network-first
 // so the dashboard always tries fresh data but still works offline.
 
-const CACHE = 'health-dash-v6';
+const CACHE = 'health-dash-v7';
 const SHELL = [
   './',
   './index.html',

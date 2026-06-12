@@ -213,10 +213,9 @@
     <div class="list" id="list"></div>
 
     <div class="actions">
-      <button class="btn primary" id="installBtn" style="display:none">⬇ Install app</button>
+      <button class="btn primary" id="installBtn">⬇ Install app</button>
       <button class="btn" id="addBtn">+ Add monitor</button>
     </div>
-    <button class="btn" id="howBtn" style="width:100%; margin-top:10px;">📲 How to install on your phone</button>
   </div>
 
   <div class="modal-backdrop" id="modal">
@@ -508,18 +507,20 @@
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();
       deferredPrompt = e;
-      if (!isStandalone) el('installBtn').style.display = '';
     });
     el('installBtn').addEventListener('click', async () => {
-      if (!deferredPrompt) return;
-      deferredPrompt.prompt();
-      await deferredPrompt.userChoice;
-      deferredPrompt = null;
-      el('installBtn').style.display = 'none';
+      if (deferredPrompt) {
+        // Chrome offered a direct install — pop the native dialog.
+        deferredPrompt.prompt();
+        await deferredPrompt.userChoice;
+        deferredPrompt = null;
+      } else {
+        // Browser isn't offering a direct install — show the manual steps.
+        openHelp();
+      }
     });
     window.addEventListener('appinstalled', () => {
       el('installBtn').style.display = 'none';
-      el('howBtn').style.display = 'none';
       deferredPrompt = null;
     });
 
@@ -546,11 +547,10 @@
         : 'Already see a "Health" icon on your home screen? It’s installed — just open it from there. The button above auto-hides once installed.';
       el('helpModal').classList.add('open');
     }
-    el('howBtn').addEventListener('click', openHelp);
     el('helpCloseBtn').addEventListener('click', () => el('helpModal').classList.remove('open'));
     el('helpModal').addEventListener('click', (e) => { if (e.target === el('helpModal')) el('helpModal').classList.remove('open'); });
-    // Hide the helper once running as an installed app.
-    if (isStandalone) el('howBtn').style.display = 'none';
+    // Hide the install button once running as an installed app.
+    if (isStandalone) el('installBtn').style.display = 'none';
 
     // Boot
     refresh();
