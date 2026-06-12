@@ -12,119 +12,183 @@
   <title>Health Check Dashboard</title>
   <style>
     :root {
-      --bg: #0f1117;
-      --card: #181b24;
-      --card-hover: #1f232f;
-      --border: #272b38;
-      --text: #e7e9ee;
-      --muted: #8b90a0;
-      --up: #2ecc71;
-      --down: #ff5252;
-      --unknown: #f0b429;
-      --paused: #6b7280;
-      --accent: #5b8def;
+      --bg: #0b0d13;
+      --surface: rgba(255,255,255,0.035);
+      --surface-2: rgba(255,255,255,0.06);
+      --border: rgba(255,255,255,0.08);
+      --border-strong: rgba(255,255,255,0.14);
+      --text: #f2f4f9;
+      --muted: #9aa0b2;
+      --faint: #6a7080;
+      --up: #34e29a;
+      --down: #ff5d6c;
+      --unknown: #ffc24b;
+      --paused: #8b91a3;
+      --accent: #6ea8ff;
+      --accent-2: #a98bff;
+      --shadow: 0 10px 30px -12px rgba(0,0,0,0.6);
     }
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     html, body { margin: 0; padding: 0; }
     body {
-      background: var(--bg);
+      background:
+        radial-gradient(900px 600px at 12% -8%, rgba(110,168,255,0.14), transparent 60%),
+        radial-gradient(800px 600px at 100% 0%, rgba(169,139,255,0.12), transparent 55%),
+        var(--bg);
+      background-attachment: fixed;
       color: var(--text);
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
       min-height: 100vh;
       padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
     }
-    .wrap { max-width: 720px; margin: 0 auto; padding: 20px 16px 40px; }
+    .wrap { max-width: 640px; margin: 0 auto; padding: 26px 16px 48px; }
 
-    header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 4px; }
-    h1 { font-size: 20px; font-weight: 650; margin: 0; letter-spacing: -0.01em; }
-    .updated { font-size: 12px; color: var(--muted); margin: 2px 0 18px; }
+    header { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .brand { display: flex; align-items: center; gap: 11px; }
+    .brand .glyph {
+      width: 34px; height: 34px; border-radius: 10px; flex: 0 0 auto;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      display: grid; place-items: center; box-shadow: 0 6px 16px -6px rgba(110,168,255,.7);
+    }
+    .brand .glyph svg { width: 19px; height: 19px; display: block; }
+    h1 { font-size: 19px; font-weight: 680; margin: 0; letter-spacing: -0.02em; }
+    .updated { font-size: 12px; color: var(--muted); margin: 14px 0 16px; display: flex; align-items: center; gap: 7px; }
+    .live { width: 7px; height: 7px; border-radius: 50%; background: var(--up); box-shadow: 0 0 0 0 rgba(52,226,154,.6); animation: live 2.4s ease-out infinite; }
+    @keyframes live { 0% { box-shadow: 0 0 0 0 rgba(52,226,154,.55); } 70%,100% { box-shadow: 0 0 0 7px rgba(52,226,154,0); } }
 
-    .summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 20px; }
-    .stat { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 12px 8px; text-align: center; }
-    .stat .n { font-size: 22px; font-weight: 700; line-height: 1; }
-    .stat .l { font-size: 11px; color: var(--muted); margin-top: 5px; text-transform: uppercase; letter-spacing: 0.04em; }
+    /* Status hero */
+    .hero {
+      position: relative; overflow: hidden; border-radius: 20px; padding: 20px 20px;
+      border: 1px solid var(--border); margin-bottom: 16px;
+      background: linear-gradient(135deg, rgba(52,226,154,.16), rgba(52,226,154,.04));
+      box-shadow: var(--shadow);
+    }
+    .hero.down { background: linear-gradient(135deg, rgba(255,93,108,.18), rgba(255,93,108,.04)); }
+    .hero.unknown { background: linear-gradient(135deg, rgba(255,194,75,.16), rgba(255,194,75,.04)); }
+    .hero.empty { background: linear-gradient(135deg, rgba(110,168,255,.14), rgba(110,168,255,.03)); }
+    .hero h2 { margin: 0; font-size: 20px; font-weight: 680; letter-spacing: -0.02em; display: flex; align-items: center; gap: 10px; }
+    .hero .sub { margin-top: 5px; font-size: 13px; color: var(--muted); }
+    .hero .ring { width: 11px; height: 11px; border-radius: 50%; flex: 0 0 auto; }
+    .hero.up .ring { background: var(--up); box-shadow: 0 0 14px 1px rgba(52,226,154,.8); }
+    .hero.down .ring { background: var(--down); box-shadow: 0 0 14px 1px rgba(255,93,108,.8); }
+    .hero.unknown .ring { background: var(--unknown); box-shadow: 0 0 14px 1px rgba(255,194,75,.8); }
+    .hero.empty .ring { background: var(--accent); box-shadow: 0 0 14px 1px rgba(110,168,255,.8); }
+
+    .summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 22px; }
+    .stat {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+      padding: 13px 8px 11px; text-align: center; backdrop-filter: blur(8px);
+    }
+    .stat .n { font-size: 23px; font-weight: 750; line-height: 1; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+    .stat .l { font-size: 10.5px; color: var(--muted); margin-top: 6px; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; }
     .stat.up .n { color: var(--up); }
     .stat.down .n { color: var(--down); }
     .stat.unknown .n { color: var(--unknown); }
 
     .list { display: flex; flex-direction: column; gap: 10px; }
     .card {
-      background: var(--card); border: 1px solid var(--border); border-radius: 14px;
-      padding: 14px 16px; transition: background .15s ease;
+      position: relative; background: var(--surface); border: 1px solid var(--border);
+      border-radius: 16px; padding: 15px 16px; backdrop-filter: blur(10px);
+      transition: transform .18s ease, border-color .18s ease, background .18s ease;
+      animation: rise .35s ease both;
     }
+    @keyframes rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
     .card.clickable { cursor: pointer; }
-    .card.clickable:active { background: var(--card-hover); }
-    .card-top { display: flex; align-items: center; gap: 14px; }
-    .chev { color: var(--muted); font-size: 18px; line-height: 1; flex: 0 0 auto; transition: transform .2s ease; }
-    .card.open .chev { transform: rotate(90deg); }
-    .detail { display: none; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border); }
-    .card.open .detail { display: block; }
-    .detail-stats { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+    @media (hover: hover) { .card.clickable:hover { transform: translateY(-2px); border-color: var(--border-strong); background: var(--surface-2); } }
+    .card.clickable:active { transform: translateY(0) scale(.995); }
+    .card.open { border-color: var(--border-strong); background: var(--surface-2); }
+    .card-top { display: flex; align-items: center; gap: 13px; }
+    .chev { color: var(--faint); font-size: 17px; line-height: 1; flex: 0 0 auto; transition: transform .25s ease; }
+    .card.open .chev { transform: rotate(90deg); color: var(--muted); }
+    .detail { display: none; margin-top: 15px; padding-top: 15px; border-top: 1px solid var(--border); }
+    .card.open .detail { display: block; animation: fade .3s ease both; }
+    @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+    .detail-stats { font-size: 12px; color: var(--muted); margin-bottom: 10px; display: flex; gap: 7px; flex-wrap: wrap; }
+    .detail-stats b { color: var(--text); font-weight: 650; }
     .spark { display: block; width: 100%; height: auto; overflow: visible; }
-    .detail-empty { font-size: 12px; color: var(--muted); padding: 4px 0; }
-    .dot { width: 12px; height: 12px; border-radius: 50%; flex: 0 0 auto; position: relative; }
-    .dot.up { background: var(--up); box-shadow: 0 0 0 4px rgba(46,204,113,.15); }
-    .dot.down { background: var(--down); box-shadow: 0 0 0 4px rgba(255,82,82,.15); }
-    .dot.unknown { background: var(--unknown); box-shadow: 0 0 0 4px rgba(240,180,41,.15); }
+    .detail-empty { font-size: 12px; color: var(--muted); padding: 4px 0; line-height: 1.5; }
+
+    .dot { width: 11px; height: 11px; border-radius: 50%; flex: 0 0 auto; position: relative; }
+    .dot.up { background: var(--up); }
+    .dot.down { background: var(--down); }
+    .dot.unknown { background: var(--unknown); }
     .dot.paused { background: var(--paused); }
     .dot.up::after {
       content: ''; position: absolute; inset: 0; border-radius: 50%;
-      background: var(--up); animation: pulse 2s ease-out infinite;
+      background: var(--up); animation: pulse 2.2s ease-out infinite;
     }
-    @keyframes pulse { 0% { transform: scale(1); opacity: .7; } 100% { transform: scale(2.6); opacity: 0; } }
+    @keyframes pulse { 0% { transform: scale(1); opacity: .7; } 100% { transform: scale(2.8); opacity: 0; } }
 
     .info { flex: 1 1 auto; min-width: 0; }
-    .name { font-size: 15px; font-weight: 550; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .name { font-size: 15px; font-weight: 600; letter-spacing: -0.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .meta { font-size: 12px; color: var(--muted); margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .badge { font-size: 11px; font-weight: 650; padding: 4px 9px; border-radius: 999px; text-transform: uppercase; letter-spacing: .03em; flex: 0 0 auto; }
-    .badge.up { color: var(--up); background: rgba(46,204,113,.12); }
-    .badge.down { color: var(--down); background: rgba(255,82,82,.12); }
-    .badge.unknown { color: var(--unknown); background: rgba(240,180,41,.12); }
-    .badge.paused { color: var(--paused); background: rgba(107,114,128,.15); }
-    .badge.local { color: var(--accent); background: rgba(91,141,239,.12); }
+    .badge { font-size: 10.5px; font-weight: 700; padding: 4px 10px; border-radius: 999px; text-transform: uppercase; letter-spacing: .04em; flex: 0 0 auto; border: 1px solid transparent; }
+    .badge.up { color: var(--up); background: rgba(52,226,154,.12); border-color: rgba(52,226,154,.25); }
+    .badge.down { color: var(--down); background: rgba(255,93,108,.12); border-color: rgba(255,93,108,.25); }
+    .badge.unknown { color: var(--unknown); background: rgba(255,194,75,.12); border-color: rgba(255,194,75,.25); }
+    .badge.paused { color: var(--paused); background: rgba(139,145,163,.14); border-color: rgba(139,145,163,.25); }
+    .badge.local { color: var(--accent); background: rgba(110,168,255,.12); border-color: rgba(110,168,255,.28); }
 
     .btn {
-      background: var(--card); color: var(--text); border: 1px solid var(--border);
-      border-radius: 10px; padding: 9px 12px; font-size: 13px; font-weight: 550;
-      cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
+      background: var(--surface); color: var(--text); border: 1px solid var(--border);
+      border-radius: 12px; padding: 11px 14px; font-size: 13.5px; font-weight: 600;
+      cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+      backdrop-filter: blur(8px); transition: background .15s ease, border-color .15s ease, transform .12s ease;
     }
-    .btn:active { background: var(--card-hover); }
-    .btn.icon { padding: 9px 11px; }
-    .actions { display: flex; gap: 8px; margin-top: 20px; }
-    .actions .btn { flex: 1; justify-content: center; }
+    @media (hover: hover) { .btn:hover { background: var(--surface-2); border-color: var(--border-strong); } }
+    .btn:active { transform: scale(.97); }
+    .btn.icon { padding: 0; width: 40px; height: 40px; border-radius: 12px; font-size: 17px; }
+    .actions { display: flex; gap: 8px; margin-top: 22px; }
+    .actions .btn { flex: 1; }
 
-    .empty { text-align: center; color: var(--muted); padding: 48px 16px; font-size: 14px; line-height: 1.6; }
-    .spin { animation: spin 1s linear infinite; }
+    .empty { text-align: center; color: var(--muted); padding: 36px 16px; font-size: 14px; line-height: 1.65; }
+    .spin { animation: spin .8s cubic-bezier(.4,0,.2,1) infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
 
     .modal-backdrop {
-      position: fixed; inset: 0; background: rgba(0,0,0,.6); display: none;
-      align-items: flex-end; justify-content: center; z-index: 10;
+      position: fixed; inset: 0; background: rgba(6,8,12,.55); backdrop-filter: blur(4px);
+      display: none; align-items: flex-end; justify-content: center; z-index: 10;
     }
-    .modal-backdrop.open { display: flex; }
+    .modal-backdrop.open { display: flex; animation: fade .2s ease both; }
     .modal {
-      background: var(--card); border: 1px solid var(--border); border-radius: 18px 18px 0 0;
-      width: 100%; max-width: 720px; padding: 22px 18px calc(22px + env(safe-area-inset-bottom));
+      background: #14171f; border: 1px solid var(--border-strong); border-bottom: none;
+      border-radius: 22px 22px 0 0; width: 100%; max-width: 640px;
+      padding: 24px 20px calc(24px + env(safe-area-inset-bottom));
+      box-shadow: 0 -20px 50px -20px rgba(0,0,0,.7); animation: sheet .28s cubic-bezier(.2,.8,.2,1) both;
     }
-    .modal h2 { font-size: 17px; margin: 0 0 16px; }
-    .modal label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+    @keyframes sheet { from { transform: translateY(100%); } to { transform: translateY(0); } }
+    .modal .grip { width: 38px; height: 4px; border-radius: 2px; background: var(--border-strong); margin: -8px auto 16px; }
+    .modal h2 { font-size: 18px; font-weight: 680; margin: 0 0 18px; letter-spacing: -0.01em; }
+    .modal label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 7px; font-weight: 600; }
     .modal input {
-      width: 100%; background: var(--bg); border: 1px solid var(--border); color: var(--text);
-      border-radius: 10px; padding: 11px 12px; font-size: 15px; margin-bottom: 14px;
+      width: 100%; background: rgba(255,255,255,.04); border: 1px solid var(--border); color: var(--text);
+      border-radius: 12px; padding: 12px 13px; font-size: 15px; margin-bottom: 15px; transition: border-color .15s ease;
     }
     .modal input:focus { outline: none; border-color: var(--accent); }
-    .modal .row { display: flex; gap: 8px; }
-    .modal .row .btn { flex: 1; justify-content: center; }
-    .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .modal .row { display: flex; gap: 9px; margin-top: 2px; }
+    .modal .row .btn { flex: 1; padding: 13px; }
+    .btn.primary { background: linear-gradient(135deg, var(--accent), var(--accent-2)); border-color: transparent; color: #0b0d13; font-weight: 700; }
+    @media (hover: hover) { .btn.primary:hover { filter: brightness(1.08); } }
   </style>
 </head>
 <body>
   <div class="wrap">
     <header>
-      <h1>Health Check</h1>
+      <div class="brand">
+        <span class="glyph" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#0b0d13" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h4l2-6 4 12 2-7 2 1h6"/></svg>
+        </span>
+        <h1>Health Check</h1>
+      </div>
       <button class="btn icon" id="refreshBtn" aria-label="Refresh">⟳</button>
     </header>
-    <div class="updated" id="updated">Loading…</div>
+    <div class="updated" id="updated"><span class="live"></span>Loading…</div>
+
+    <div class="hero empty" id="hero">
+      <h2><span class="ring"></span><span id="hero-title">Loading…</span></h2>
+      <div class="sub" id="hero-sub">Fetching the latest status</div>
+    </div>
 
     <div class="summary">
       <div class="stat"><div class="n" id="s-total">–</div><div class="l">Total</div></div>
@@ -142,6 +206,7 @@
 
   <div class="modal-backdrop" id="modal">
     <div class="modal">
+      <div class="grip"></div>
       <h2>Add a monitor</h2>
       <label for="m-name">Name</label>
       <input id="m-name" type="text" placeholder="My API" autocomplete="off" />
@@ -192,33 +257,47 @@
       return h[id] && Array.isArray(h[id].points) ? h[id].points : null;
     }
 
+    let sparkUid = 0;
+
     // Build the expandable detail: response-time sparkline + status strip + stats.
     function buildDetail(points) {
       if (!points || points.length === 0) {
         return '<div class="detail-empty">No history yet — fills in as the Action runs (every 5 min).</div>';
       }
-      const W = 300, H = 56, pad = 4, stripY = H + 4, stripH = 6;
+      const W = 300, H = 56, pad = 4, baseY = H - pad, stripGap = 5, stripH = 6, stripY = H + stripGap;
       const n = points.length;
       const msVals = points.map((p) => p.ms).filter((v) => typeof v === 'number' && v >= 0);
       const maxMs = Math.max(1, ...msVals);
       const xAt = (i) => pad + (n === 1 ? (W - 2 * pad) / 2 : (i / (n - 1)) * (W - 2 * pad));
-      const yAt = (v) => H - pad - (v / maxMs) * (H - 2 * pad);
+      const yAt = (v) => baseY - (v / maxMs) * (H - 2 * pad);
 
-      let d = '', drawing = false;
+      // Group contiguous runs of valid samples so the line/area break across gaps.
+      const segments = [];
+      let cur = null;
       points.forEach((p, i) => {
         if (typeof p.ms === 'number' && p.ms >= 0) {
-          d += (drawing ? ' L' : 'M') + xAt(i).toFixed(1) + ' ' + yAt(p.ms).toFixed(1);
-          drawing = true;
-        } else {
-          drawing = false; // break the line across gaps (down/unknown)
-        }
+          if (!cur) { cur = []; segments.push(cur); }
+          cur.push({ x: xAt(i), y: yAt(p.ms) });
+        } else { cur = null; }
       });
+
+      const uid = 'sp' + (++sparkUid);
+      let lines = '', areas = '';
+      for (const seg of segments) {
+        if (seg.length === 1) {
+          lines += `<circle cx="${seg[0].x.toFixed(1)}" cy="${seg[0].y.toFixed(1)}" r="1.8" fill="var(--accent)"/>`;
+          continue;
+        }
+        const line = seg.map((pt, i) => `${i ? 'L' : 'M'}${pt.x.toFixed(1)} ${pt.y.toFixed(1)}`).join(' ');
+        lines += `<path d="${line}" fill="none" stroke="url(#stroke-${uid})" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/>`;
+        areas += `<path d="${line} L${seg[seg.length - 1].x.toFixed(1)} ${baseY} L${seg[0].x.toFixed(1)} ${baseY} Z" fill="url(#fill-${uid})"/>`;
+      }
 
       const colorFor = (s) => s === 'up' ? 'var(--up)' : s === 'down' ? 'var(--down)'
         : s === 'paused' ? 'var(--paused)' : 'var(--unknown)';
       const segW = (W - 2 * pad) / n;
       const strip = points.map((p, i) =>
-        `<rect x="${(pad + i * segW).toFixed(2)}" y="${stripY}" width="${(segW + 0.6).toFixed(2)}" height="${stripH}" fill="${colorFor(p.s)}"/>`
+        `<rect x="${(pad + i * segW).toFixed(2)}" y="${stripY}" width="${Math.max(0.6, segW - 0.6).toFixed(2)}" height="${stripH}" rx="1.2" fill="${colorFor(p.s)}"/>`
       ).join('');
 
       const checkable = points.filter((p) => p.s === 'up' || p.s === 'down').length;
@@ -226,15 +305,24 @@
       const uptime = checkable ? Math.round((upCount / checkable) * 100) : null;
       const avg = msVals.length ? Math.round(msVals.reduce((a, b) => a + b, 0) / msVals.length) : null;
       const stats = [
-        uptime != null ? `${uptime}% up` : null,
-        avg != null ? `${avg} ms avg` : null,
-        `${n} check${n === 1 ? '' : 's'}`
-      ].filter(Boolean).join(' · ');
+        uptime != null ? `<b>${uptime}%</b> up` : null,
+        avg != null ? `<b>${avg} ms</b> avg` : null,
+        `<b>${n}</b> check${n === 1 ? '' : 's'}`
+      ].filter(Boolean).map((s) => `<span>${s}</span>`).join('');
 
       return `<div class="detail-stats">${stats}</div>
-        <svg class="spark" viewBox="0 0 ${W} ${H + stripH + 4}" preserveAspectRatio="none" role="img" aria-label="response time history">
-          <path d="${d}" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/>
-          ${strip}
+        <svg class="spark" viewBox="0 0 ${W} ${stripY + stripH + 1}" preserveAspectRatio="none" role="img" aria-label="response time history">
+          <defs>
+            <linearGradient id="stroke-${uid}" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0" stop-color="var(--accent)"/>
+              <stop offset="1" stop-color="var(--accent-2)"/>
+            </linearGradient>
+            <linearGradient id="fill-${uid}" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="var(--accent)" stop-opacity="0.28"/>
+              <stop offset="1" stop-color="var(--accent)" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          ${areas}${lines}${strip}
         </svg>`;
     }
 
@@ -303,15 +391,36 @@
       const monitors = data.monitors || [];
       const locals = loadLocal();
 
-      el('updated').textContent = data.updatedAt
-        ? `Live feed updated ${relativeTime(data.updatedAt)}`
-        : 'Waiting for first data feed…';
+      el('updated').innerHTML = '<span class="live"></span>' + (data.updatedAt
+        ? `Live feed updated ${escapeHtml(relativeTime(data.updatedAt))}`
+        : 'Waiting for first data feed…');
 
       const sum = data.summary || { total: monitors.length, up: 0, down: 0, unknown: 0 };
+      const other = (sum.unknown ?? 0) + (sum.paused ?? 0);
       el('s-total').textContent = sum.total ?? monitors.length;
       el('s-up').textContent = sum.up ?? 0;
       el('s-down').textContent = sum.down ?? 0;
-      el('s-unknown').textContent = (sum.unknown ?? 0) + (sum.paused ?? 0);
+      el('s-unknown').textContent = other;
+
+      // Overall status hero.
+      const hero = el('hero');
+      let cls, title, sub;
+      if ((sum.total ?? monitors.length) === 0) {
+        cls = 'empty'; title = 'No monitors yet';
+        sub = 'Run the Action or add a monitor to get started';
+      } else if ((sum.down ?? 0) > 0) {
+        cls = 'down'; title = `${sum.down} ${sum.down === 1 ? 'monitor' : 'monitors'} down`;
+        sub = `${sum.up ?? 0} of ${sum.total} operational`;
+      } else if (other > 0) {
+        cls = 'unknown'; title = 'Partially degraded';
+        sub = `${sum.up ?? 0} up · ${other} awaiting data`;
+      } else {
+        cls = 'up'; title = 'All systems operational';
+        sub = `${sum.total} ${sum.total === 1 ? 'monitor' : 'monitors'} healthy`;
+      }
+      hero.className = 'hero ' + cls;
+      el('hero-title').textContent = title;
+      el('hero-sub').textContent = sub;
 
       list.innerHTML = '';
       if (monitors.length === 0 && locals.length === 0) {
