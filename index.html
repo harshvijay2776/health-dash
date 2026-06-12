@@ -200,6 +200,7 @@
     <div class="list" id="list"></div>
 
     <div class="actions">
+      <button class="btn primary" id="installBtn" style="display:none">⬇ Install app</button>
       <button class="btn" id="addBtn">+ Add monitor</button>
     </div>
   </div>
@@ -474,6 +475,26 @@
     });
 
     el('refreshBtn').addEventListener('click', refresh);
+
+    // Install prompt — show an in-app Install button when the browser offers it.
+    let deferredPrompt = null;
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      if (!isStandalone) el('installBtn').style.display = '';
+    });
+    el('installBtn').addEventListener('click', async () => {
+      if (!deferredPrompt) return;
+      deferredPrompt.prompt();
+      await deferredPrompt.userChoice;
+      deferredPrompt = null;
+      el('installBtn').style.display = 'none';
+    });
+    window.addEventListener('appinstalled', () => {
+      el('installBtn').style.display = 'none';
+      deferredPrompt = null;
+    });
 
     // Boot
     refresh();
