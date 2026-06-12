@@ -2,7 +2,7 @@
 // App shell is cache-first; the live data feed (data.json) is network-first
 // so the dashboard always tries fresh data but still works offline.
 
-const CACHE = 'health-dash-v2';
+const CACHE = 'health-dash-v3';
 const SHELL = [
   './',
   './index.html',
@@ -33,8 +33,8 @@ self.addEventListener('fetch', (event) => {
 
   const url = new URL(request.url);
 
-  // Network-first for the live data feed.
-  if (url.pathname.endsWith('data.json')) {
+  // Network-first for the live data feeds.
+  if (url.pathname.endsWith('data.json') || url.pathname.endsWith('history.json')) {
     event.respondWith(
       fetch(request)
         .then((response) => {

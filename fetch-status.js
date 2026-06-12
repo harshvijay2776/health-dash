@@ -84,6 +84,37 @@ async function main() {
 
   monitors.sort((a, b) => a.name.localeCompare(b.name));
 
+  // --- Append to the rolling history (history.json) ---------------------------
+  // Keep the last MAX_POINTS samples per monitor (288 = 24h at 5-min intervals).
+  const MAX_POINTS = 288;
+  const historyPath = path.join(__dirname, 'history.json');
+  let history = { updatedAt: null, monitors: {} };
+  try {
+    const raw = fs.readFileSync(historyPath, 'utf8');
+    const parsed = JSON.parse(raw);
+    if (parsed && parsed.monitors) history = parsed;
+  } catch {
+    // No history yet — start fresh.
+  }
+
+  const nowIso = new Date().toISOString();
+  for (const m of monitors) {
+    const entry = history.monitors[m.id] || { name: m.name, points: [] };
+    entry.name = m.name;
+    entry.points.push({ t: nowIso, s: m.status, ms: m.responseMs });
+    if (entry.points.length > MAX_POINTS) {
+      entry.points = entry.points.slice(entry.points.length - MAX_POINTS);
+    }
+    history.monitors[m.id] = entry;
+  }
+  // Drop history for monitors that no longer exist.
+  const liveIds = new Set(monitors.map((m) => m.id));
+  for (const id of Object.keys(history.monitors)) {
+    if (!liveIds.has(id)) delete history.monitors[id];
+  }
+  history.updatedAt = nowIso;
+  fs.writeFileSync(historyPath, JSON.stringify(history) + '\n');
+
   const summary = monitors.reduce(
     (acc, m) => {
       acc.total += 1;

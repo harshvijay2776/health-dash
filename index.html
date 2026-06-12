@@ -50,10 +50,18 @@
     .list { display: flex; flex-direction: column; gap: 10px; }
     .card {
       background: var(--card); border: 1px solid var(--border); border-radius: 14px;
-      padding: 14px 16px; display: flex; align-items: center; gap: 14px;
-      transition: background .15s ease;
+      padding: 14px 16px; transition: background .15s ease;
     }
-    .card:active { background: var(--card-hover); }
+    .card.clickable { cursor: pointer; }
+    .card.clickable:active { background: var(--card-hover); }
+    .card-top { display: flex; align-items: center; gap: 14px; }
+    .chev { color: var(--muted); font-size: 18px; line-height: 1; flex: 0 0 auto; transition: transform .2s ease; }
+    .card.open .chev { transform: rotate(90deg); }
+    .detail { display: none; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border); }
+    .card.open .detail { display: block; }
+    .detail-stats { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+    .spark { display: block; width: 100%; height: auto; overflow: visible; }
+    .detail-empty { font-size: 12px; color: var(--muted); padding: 4px 0; }
     .dot { width: 12px; height: 12px; border-radius: 50%; flex: 0 0 auto; position: relative; }
     .dot.up { background: var(--up); box-shadow: 0 0 0 4px rgba(46,204,113,.15); }
     .dot.down { background: var(--down); box-shadow: 0 0 0 4px rgba(255,82,82,.15); }
@@ -177,6 +185,59 @@
       return `<span class="badge ${status}">${labels[status] || status}</span>`;
     }
 
+    const openIds = new Set();
+
+    function historyFor(id) {
+      const h = window.__history || {};
+      return h[id] && Array.isArray(h[id].points) ? h[id].points : null;
+    }
+
+    // Build the expandable detail: response-time sparkline + status strip + stats.
+    function buildDetail(points) {
+      if (!points || points.length === 0) {
+        return '<div class="detail-empty">No history yet — fills in as the Action runs (every 5 min).</div>';
+      }
+      const W = 300, H = 56, pad = 4, stripY = H + 4, stripH = 6;
+      const n = points.length;
+      const msVals = points.map((p) => p.ms).filter((v) => typeof v === 'number' && v >= 0);
+      const maxMs = Math.max(1, ...msVals);
+      const xAt = (i) => pad + (n === 1 ? (W - 2 * pad) / 2 : (i / (n - 1)) * (W - 2 * pad));
+      const yAt = (v) => H - pad - (v / maxMs) * (H - 2 * pad);
+
+      let d = '', drawing = false;
+      points.forEach((p, i) => {
+        if (typeof p.ms === 'number' && p.ms >= 0) {
+          d += (drawing ? ' L' : 'M') + xAt(i).toFixed(1) + ' ' + yAt(p.ms).toFixed(1);
+          drawing = true;
+        } else {
+          drawing = false; // break the line across gaps (down/unknown)
+        }
+      });
+
+      const colorFor = (s) => s === 'up' ? 'var(--up)' : s === 'down' ? 'var(--down)'
+        : s === 'paused' ? 'var(--paused)' : 'var(--unknown)';
+      const segW = (W - 2 * pad) / n;
+      const strip = points.map((p, i) =>
+        `<rect x="${(pad + i * segW).toFixed(2)}" y="${stripY}" width="${(segW + 0.6).toFixed(2)}" height="${stripH}" fill="${colorFor(p.s)}"/>`
+      ).join('');
+
+      const checkable = points.filter((p) => p.s === 'up' || p.s === 'down').length;
+      const upCount = points.filter((p) => p.s === 'up').length;
+      const uptime = checkable ? Math.round((upCount / checkable) * 100) : null;
+      const avg = msVals.length ? Math.round(msVals.reduce((a, b) => a + b, 0) / msVals.length) : null;
+      const stats = [
+        uptime != null ? `${uptime}% up` : null,
+        avg != null ? `${avg} ms avg` : null,
+        `${n} check${n === 1 ? '' : 's'}`
+      ].filter(Boolean).join(' · ');
+
+      return `<div class="detail-stats">${stats}</div>
+        <svg class="spark" viewBox="0 0 ${W} ${H + stripH + 4}" preserveAspectRatio="none" role="img" aria-label="response time history">
+          <path d="${d}" fill="none" stroke="var(--accent)" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/>
+          ${strip}
+        </svg>`;
+    }
+
     function renderCard(m, isLocal) {
       const card = document.createElement('div');
       card.className = 'card';
@@ -185,14 +246,40 @@
       if (m.lastCheck) metaBits.push(`checked ${relativeTime(m.lastCheck)}`);
       if (typeof m.responseMs === 'number') metaBits.push(`${m.responseMs} ms`);
       if (isLocal) metaBits.push('saved on this device');
+
+      const canExpand = !isLocal;
+      const right = isLocal
+        ? '<span class="badge local">Local</span>'
+        : `${statusBadge(status)}<span class="chev">›</span>`;
+
       card.innerHTML = `
-        <div class="dot ${status}"></div>
-        <div class="info">
-          <div class="name">${escapeHtml(m.name)}</div>
-          <div class="meta">${escapeHtml(metaBits.join(' · ') || (m.url || ''))}</div>
+        <div class="card-top">
+          <div class="dot ${status}"></div>
+          <div class="info">
+            <div class="name">${escapeHtml(m.name)}</div>
+            <div class="meta">${escapeHtml(metaBits.join(' · ') || (m.url || ''))}</div>
+          </div>
+          ${right}
         </div>
-        ${isLocal ? '<span class="badge local">Local</span>' : statusBadge(status)}
+        ${canExpand ? '<div class="detail"></div>' : ''}
       `;
+
+      if (canExpand) {
+        card.classList.add('clickable');
+        const detail = card.querySelector('.detail');
+        const fill = () => {
+          if (!detail.dataset.rendered) {
+            detail.innerHTML = buildDetail(historyFor(m.id));
+            detail.dataset.rendered = '1';
+          }
+        };
+        if (openIds.has(m.id)) { card.classList.add('open'); fill(); }
+        card.querySelector('.card-top').addEventListener('click', () => {
+          const isOpen = card.classList.toggle('open');
+          if (isOpen) { openIds.add(m.id); fill(); } else { openIds.delete(m.id); }
+        });
+      }
+
       if (isLocal) {
         card.addEventListener('dblclick', () => removeLocal(m.id));
         card.title = 'Double-tap to remove';
@@ -239,8 +326,15 @@
       const btn = el('refreshBtn');
       btn.classList.add('spin');
       try {
-        const res = await fetch('data.json?t=' + Date.now(), { cache: 'no-store' });
-        const data = await res.json();
+        const [dRes, hRes] = await Promise.all([
+          fetch('data.json?t=' + Date.now(), { cache: 'no-store' }),
+          fetch('history.json?t=' + Date.now(), { cache: 'no-store' }).catch(() => null)
+        ]);
+        const data = await dRes.json();
+        try {
+          const h = hRes && hRes.ok ? await hRes.json() : null;
+          window.__history = h && h.monitors ? h.monitors : {};
+        } catch { window.__history = {}; }
         render(data);
       } catch (err) {
         el('updated').textContent = 'Could not load live feed (offline?)';
