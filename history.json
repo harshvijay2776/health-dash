@@ -1,1 +1,1 @@
-{"updatedAt":null,"monitors":{}}
+{"updatedAt":"2026-06-12T09:36:44.785Z","monitors":{"7582160":{"name":"Health Check","points":[{"t":"2026-06-12T09:36:44.785Z","s":"up","ms":394}]},"7792759":{"name":"Home App","points":[{"t":"2026-06-12T09:36:44.785Z","s":"up","ms":101}]}}}
