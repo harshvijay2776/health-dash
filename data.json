@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-11T08:54:37.765Z",
+  "updatedAt": "2026-07-11T10:18:50.953Z",
   "summary": {
     "total": 2,
     "up": 2,
@@ -14,9 +14,9 @@
       "enabled": true,
       "status": "up",
       "code": 1,
-      "responseMs": 99,
-      "lastCheck": "2026-07-11T08:50:36.000Z",
-      "nextCheck": "2026-07-11T08:55:00.000Z"
+      "responseMs": 91,
+      "lastCheck": "2026-07-11T10:15:36.000Z",
+      "nextCheck": "2026-07-11T10:20:00.000Z"
     },
     {
       "id": "7582160",
@@ -25,9 +25,9 @@
       "enabled": true,
       "status": "up",
       "code": 1,
-      "responseMs": 365,
-      "lastCheck": "2026-07-11T08:50:54.000Z",
-      "nextCheck": "2026-07-11T09:00:00.000Z"
+      "responseMs": 701,
+      "lastCheck": "2026-07-11T10:10:54.000Z",
+      "nextCheck": "2026-07-11T10:20:00.000Z"
     }
   ]
 }
