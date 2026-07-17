@@ -1,9 +1,9 @@
 {
-  "updatedAt": "2026-07-17T08:24:41.289Z",
+  "updatedAt": "2026-07-17T10:19:24.160Z",
   "summary": {
     "total": 3,
-    "up": 3,
-    "down": 0,
+    "up": 2,
+    "down": 1,
     "unknown": 0
   },
   "monitors": [
@@ -14,9 +14,9 @@
       "enabled": true,
       "status": "up",
       "code": 1,
-      "responseMs": 240,
-      "lastCheck": "2026-07-17T08:20:57.000Z",
-      "nextCheck": "2026-07-17T08:25:00.000Z"
+      "responseMs": 229,
+      "lastCheck": "2026-07-17T10:15:52.000Z",
+      "nextCheck": "2026-07-17T10:20:00.000Z"
     },
     {
       "id": "7792759",
@@ -25,20 +25,20 @@
       "enabled": true,
       "status": "up",
       "code": 1,
-      "responseMs": 103,
-      "lastCheck": "2026-07-17T08:20:36.000Z",
-      "nextCheck": "2026-07-17T08:25:00.000Z"
+      "responseMs": 98,
+      "lastCheck": "2026-07-17T10:15:36.000Z",
+      "nextCheck": "2026-07-17T10:20:00.000Z"
     },
     {
       "id": "7582160",
       "name": "Vihang",
       "url": "https://vihang-backend-38j6.onrender.com/health",
       "enabled": true,
-      "status": "up",
-      "code": 1,
-      "responseMs": 375,
-      "lastCheck": "2026-07-17T08:20:57.000Z",
-      "nextCheck": "2026-07-17T08:30:00.000Z"
+      "status": "down",
+      "code": 4,
+      "responseMs": 220,
+      "lastCheck": "2026-07-17T10:10:57.000Z",
+      "nextCheck": "2026-07-17T10:20:00.000Z"
     }
   ]
 }
