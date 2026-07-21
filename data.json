@@ -1,9 +1,9 @@
 {
-  "updatedAt": "2026-07-21T20:07:10.985Z",
+  "updatedAt": "2026-07-21T21:32:23.398Z",
   "summary": {
     "total": 3,
-    "up": 2,
-    "down": 1,
+    "up": 1,
+    "down": 2,
     "unknown": 0
   },
   "monitors": [
@@ -14,20 +14,20 @@
       "enabled": true,
       "status": "up",
       "code": 1,
-      "responseMs": 179,
-      "lastCheck": "2026-07-21T20:01:10.000Z",
-      "nextCheck": "2026-07-21T20:10:00.000Z"
+      "responseMs": 183,
+      "lastCheck": "2026-07-21T21:31:05.000Z",
+      "nextCheck": "2026-07-21T21:40:00.000Z"
     },
     {
       "id": "7792759",
       "name": "Home App",
       "url": "https://home-3ss1.onrender.com/api/health",
       "enabled": true,
-      "status": "up",
-      "code": 1,
-      "responseMs": 57,
-      "lastCheck": "2026-07-21T20:00:50.000Z",
-      "nextCheck": "2026-07-21T21:00:00.000Z"
+      "status": "down",
+      "code": 4,
+      "responseMs": 60,
+      "lastCheck": "2026-07-21T21:00:50.000Z",
+      "nextCheck": "2026-07-21T22:00:00.000Z"
     },
     {
       "id": "7582160",
@@ -36,9 +36,9 @@
       "enabled": true,
       "status": "down",
       "code": 4,
-      "responseMs": 561,
-      "lastCheck": "2026-07-21T20:01:10.000Z",
-      "nextCheck": "2026-07-21T20:10:00.000Z"
+      "responseMs": 210,
+      "lastCheck": "2026-07-21T21:31:05.000Z",
+      "nextCheck": "2026-07-21T21:40:00.000Z"
     }
   ]
 }
