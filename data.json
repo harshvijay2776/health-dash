@@ -1,9 +1,9 @@
 {
-  "updatedAt": "2026-07-22T20:48:00.482Z",
+  "updatedAt": "2026-07-22T21:53:01.824Z",
   "summary": {
     "total": 3,
-    "up": 3,
-    "down": 0,
+    "up": 1,
+    "down": 2,
     "unknown": 0
   },
   "monitors": [
@@ -12,22 +12,22 @@
       "name": "Flood Shelter",
       "url": "https://flood-shelter-house-location.onrender.com/api/health",
       "enabled": true,
-      "status": "up",
-      "code": 1,
-      "responseMs": 198,
-      "lastCheck": "2026-07-22T20:40:54.000Z",
-      "nextCheck": "2026-07-22T20:50:00.000Z"
+      "status": "down",
+      "code": 4,
+      "responseMs": 64,
+      "lastCheck": "2026-07-22T21:50:51.000Z",
+      "nextCheck": "2026-07-22T22:00:00.000Z"
     },
     {
       "id": "7792759",
       "name": "Home App",
       "url": "https://home-3ss1.onrender.com/api/health",
       "enabled": true,
-      "status": "up",
-      "code": 1,
-      "responseMs": 57,
-      "lastCheck": "2026-07-22T20:00:46.000Z",
-      "nextCheck": "2026-07-22T21:00:00.000Z"
+      "status": "down",
+      "code": 4,
+      "responseMs": 98,
+      "lastCheck": "2026-07-22T21:00:46.000Z",
+      "nextCheck": "2026-07-22T22:00:00.000Z"
     },
     {
       "id": "7582160",
@@ -36,9 +36,9 @@
       "enabled": true,
       "status": "up",
       "code": 1,
-      "responseMs": 711,
-      "lastCheck": "2026-07-22T20:40:54.000Z",
-      "nextCheck": "2026-07-22T20:50:00.000Z"
+      "responseMs": 680,
+      "lastCheck": "2026-07-22T21:50:51.000Z",
+      "nextCheck": "2026-07-22T22:00:00.000Z"
     }
   ]
 }
