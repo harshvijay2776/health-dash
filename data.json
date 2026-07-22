@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-22T07:17:57.925Z",
+  "updatedAt": "2026-07-22T09:43:53.148Z",
   "summary": {
     "total": 3,
     "up": 2,
@@ -14,31 +14,31 @@
       "enabled": true,
       "status": "up",
       "code": 1,
-      "responseMs": 176,
-      "lastCheck": "2026-07-22T07:10:56.000Z",
-      "nextCheck": "2026-07-22T07:20:00.000Z"
+      "responseMs": 180,
+      "lastCheck": "2026-07-22T09:40:58.000Z",
+      "nextCheck": "2026-07-22T09:50:00.000Z"
     },
     {
       "id": "7792759",
       "name": "Home App",
       "url": "https://home-3ss1.onrender.com/api/health",
       "enabled": true,
-      "status": "up",
-      "code": 1,
-      "responseMs": 104,
-      "lastCheck": "2026-07-22T07:00:48.000Z",
-      "nextCheck": "2026-07-22T08:00:00.000Z"
+      "status": "down",
+      "code": 5,
+      "responseMs": 30001,
+      "lastCheck": "2026-07-22T09:00:48.000Z",
+      "nextCheck": "2026-07-22T10:00:00.000Z"
     },
     {
       "id": "7582160",
       "name": "Vihang",
       "url": "https://vihang-backend-38j6.onrender.com/health",
       "enabled": true,
-      "status": "down",
-      "code": 4,
-      "responseMs": 522,
-      "lastCheck": "2026-07-22T07:10:56.000Z",
-      "nextCheck": "2026-07-22T07:20:00.000Z"
+      "status": "up",
+      "code": 1,
+      "responseMs": 724,
+      "lastCheck": "2026-07-22T09:40:58.000Z",
+      "nextCheck": "2026-07-22T09:50:00.000Z"
     }
   ]
 }
