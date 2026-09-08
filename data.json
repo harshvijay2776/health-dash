@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-09-08T18:49:55.400Z",
+  "updatedAt": "2026-09-08T21:31:22.698Z",
   "summary": {
     "total": 3,
     "up": 3,
@@ -14,9 +14,9 @@
       "enabled": true,
       "status": "up",
       "code": 1,
-      "responseMs": 256,
-      "lastCheck": "2026-09-08T18:40:49.000Z",
-      "nextCheck": "2026-09-08T18:50:00.000Z"
+      "responseMs": 268,
+      "lastCheck": "2026-09-08T21:31:05.000Z",
+      "nextCheck": "2026-09-08T21:40:00.000Z"
     },
     {
       "id": "7792759",
@@ -25,9 +25,9 @@
       "enabled": true,
       "status": "up",
       "code": 1,
-      "responseMs": 133,
-      "lastCheck": "2026-09-08T18:40:35.000Z",
-      "nextCheck": "2026-09-08T18:50:00.000Z"
+      "responseMs": 131,
+      "lastCheck": "2026-09-08T21:30:42.000Z",
+      "nextCheck": "2026-09-08T21:40:00.000Z"
     },
     {
       "id": "7582160",
@@ -36,9 +36,9 @@
       "enabled": true,
       "status": "up",
       "code": 1,
-      "responseMs": 381,
-      "lastCheck": "2026-09-08T18:40:49.000Z",
-      "nextCheck": "2026-09-08T18:50:00.000Z"
+      "responseMs": 396,
+      "lastCheck": "2026-09-08T21:31:05.000Z",
+      "nextCheck": "2026-09-08T21:40:00.000Z"
     }
   ]
 }
