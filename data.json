@@ -1,9 +1,9 @@
 {
-  "updatedAt": "2026-10-07T02:17:04.814Z",
+  "updatedAt": "2026-10-07T08:54:30.601Z",
   "summary": {
     "total": 3,
-    "up": 1,
-    "down": 2,
+    "up": 2,
+    "down": 1,
     "unknown": 0
   },
   "monitors": [
@@ -12,11 +12,11 @@
       "name": "Flood Shelter",
       "url": "https://flood-shelter-house-location.onrender.com/api/health",
       "enabled": true,
-      "status": "down",
-      "code": 4,
-      "responseMs": 97,
-      "lastCheck": "2026-10-07T02:10:57.000Z",
-      "nextCheck": "2026-10-07T02:20:00.000Z"
+      "status": "up",
+      "code": 1,
+      "responseMs": 247,
+      "lastCheck": "2026-10-07T08:50:57.000Z",
+      "nextCheck": "2026-10-07T09:00:00.000Z"
     },
     {
       "id": "7792759",
@@ -25,9 +25,9 @@
       "enabled": true,
       "status": "up",
       "code": 1,
-      "responseMs": 96,
-      "lastCheck": "2026-10-07T02:10:35.000Z",
-      "nextCheck": "2026-10-07T02:20:00.000Z"
+      "responseMs": 97,
+      "lastCheck": "2026-10-07T08:50:35.000Z",
+      "nextCheck": "2026-10-07T09:00:00.000Z"
     },
     {
       "id": "7582160",
@@ -36,9 +36,9 @@
       "enabled": true,
       "status": "down",
       "code": 4,
-      "responseMs": 231,
-      "lastCheck": "2026-10-07T02:10:57.000Z",
-      "nextCheck": "2026-10-07T02:20:00.000Z"
+      "responseMs": 236,
+      "lastCheck": "2026-10-07T08:50:57.000Z",
+      "nextCheck": "2026-10-07T09:00:00.000Z"
     }
   ]
 }
